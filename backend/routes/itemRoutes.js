@@ -1,57 +1,49 @@
-import { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+const express = require('express');
+const router = express.Router();
+const Item = require('../models/Item');
 
-export const ItemContext = createContext();
+// Create
+router.post('/', async (req, res) => {
+  try {
+    const newItem = new Item(req.body);
+    await newItem.save();
+    res.status(201).json(newItem);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
-// ✅ Replace this with your live Render backend API
-const API_BASE_URL = 'https://inventory-management-whizlabs.onrender.com/items';
+// Read all
+router.get('/', async (req, res) => {
+  const items = await Item.find();
+  res.json(items);
+});
 
-export const ItemProvider = ({ children }) => {
-  const [items, setItems] = useState([]);
-  const [editItem, setEditItem] = useState(null);
+// Read one
+router.get('/:id', async (req, res) => {
+  try {
+    const item = await Item.findById(req.params.id);
+    res.json(item);
+  } catch {
+    res.status(404).json({ error: "Item not found" });
+  }
+});
 
-  // Read all
-  const fetchItems = async () => {
-    try {
-      const res = await axios.get(API_BASE_URL);
-      setItems(res.data);
-    } catch (error) {
-      console.error("Error fetching items:", error);
-    }
-  };
+// Update
+router.put('/:id', async (req, res) => {
+  try {
+    const updated = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
-  useEffect(() => {
-    fetchItems();
-  }, []);
+// Delete
+router.delete('/:id', async (req, res) => {
+  await Item.findByIdAndDelete(req.params.id);
+  res.json({ message: "Item deleted" });
+});
 
-  // Add or Update
-  const saveItem = async (item) => {
-    try {
-      if (editItem) {
-        await axios.put(`${API_BASE_URL}/${editItem._id}`, item);
-        setEditItem(null);
-      } else {
-        await axios.post(API_BASE_URL, item);
-      }
-      fetchItems();
-    } catch (error) {
-      console.error("Error saving item:", error);
-    }
-  };
+module.exports = router;
 
-  // Delete
-  const deleteItem = async (id) => {
-    try {
-      await axios.delete(`${API_BASE_URL}/${id}`);
-      fetchItems();
-    } catch (error) {
-      console.error("Error deleting item:", error);
-    }
-  };
-
-  return (
-    <ItemContext.Provider value={{ items, setItems, fetchItems, editItem, setEditItem, saveItem, deleteItem }}>
-      {children}
-    </ItemContext.Provider>
-  );
-};
