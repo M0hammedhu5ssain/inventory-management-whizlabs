@@ -12,7 +12,6 @@ const ItemList = () => {
 
   const [message, setMessage] = useState('');
 
-  // ⬆️ Scroll to top smoothly
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -82,7 +81,7 @@ const ItemList = () => {
 
 export default ItemList;
 
-// ✅ CSS Styles
+// ✅ Styles
 const styles = {
   popup: {
     position: 'fixed',
