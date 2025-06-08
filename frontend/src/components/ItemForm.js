@@ -1,9 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
-import axios from 'axios';
 import { ItemContext } from '../context/ItemContext';
 
 const ItemForm = () => {
-  const { fetchItems, editItem, setEditItem } = useContext(ItemContext);
+  const { editItem, saveItem } = useContext(ItemContext);
+
+
+
   const [item, setItem] = useState({
     itemName: '',
     quantity: '',
@@ -13,7 +15,9 @@ const ItemForm = () => {
   });
 
   useEffect(() => {
-    if (editItem) setItem(editItem);
+    if (editItem) {
+      setItem(editItem);
+    }
   }, [editItem]);
 
   const handleChange = (e) => {
@@ -22,30 +26,18 @@ const ItemForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      if (editItem) {
-        await axios.put(`http://localhost:5000/items/${editItem._id}`, item);
-        setEditItem(null);
-      } else {
-        await axios.post('http://localhost:5000/items', item);
-      }
+    await saveItem(item);
 
-      setItem({
-        itemName: '',
-        quantity: '',
-        price: '',
-        description: '',
-        category: ''
-      });
+    // Reset form
+    setItem({
+      itemName: '',
+      quantity: '',
+      price: '',
+      description: '',
+      category: ''
+    });
 
-      fetchItems();
-
-      // ✅ Scroll to top after update or add
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    } catch (err) {
-      console.error('Error submitting form:', err.message);
-    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
