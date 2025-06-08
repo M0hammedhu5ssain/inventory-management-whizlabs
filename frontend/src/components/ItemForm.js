@@ -12,6 +12,8 @@ const ItemForm = () => {
     category: ''
   });
 
+  const [message, setMessage] = useState('');
+
   useEffect(() => {
     if (editItem) {
       setItem(editItem);
@@ -25,6 +27,9 @@ const ItemForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     await saveItem(item);
+
+    setMessage(editItem ? 'Item updated successfully ✅' : 'Item added successfully ✅');
+
     setItem({
       itemName: '',
       quantity: '',
@@ -32,18 +37,46 @@ const ItemForm = () => {
       description: '',
       category: ''
     });
+
+    // Auto-hide message after 2 seconds
+    setTimeout(() => setMessage(''), 2000);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="itemName" value={item.itemName} onChange={handleChange} placeholder="Item Name" required />
-      <input name="quantity" type="number" value={item.quantity} onChange={handleChange} placeholder="Quantity" required />
-      <input name="price" type="number" value={item.price} onChange={handleChange} placeholder="Price" required />
-      <input name="description" value={item.description} onChange={handleChange} placeholder="Description" />
-      <input name="category" value={item.category} onChange={handleChange} placeholder="Category" />
-      <button type="submit">{editItem ? 'Update' : 'Add'} Item</button>
-    </form>
+    <div>
+      {message && (
+        <div style={styles.popup}>
+          {message}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit}>
+        <input name="itemName" value={item.itemName} onChange={handleChange} placeholder="Item Name" required />
+        <input name="quantity" type="number" value={item.quantity} onChange={handleChange} placeholder="Quantity" required />
+        <input name="price" type="number" value={item.price} onChange={handleChange} placeholder="Price" required />
+        <input name="description" value={item.description} onChange={handleChange} placeholder="Description" />
+        <input name="category" value={item.category} onChange={handleChange} placeholder="Category" />
+        <button type="submit">{editItem ? 'Update' : 'Add'} Item</button>
+      </form>
+    </div>
   );
 };
 
 export default ItemForm;
+
+// ✅ Simple popup style
+const styles = {
+  popup: {
+    position: 'fixed',
+    top: '20px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    background: '#27ae60',
+    color: 'white',
+    padding: '10px 20px',
+    borderRadius: '8px',
+    zIndex: 999,
+    fontWeight: 'bold',
+    boxShadow: '0px 4px 10px rgba(0,0,0,0.2)'
+  }
+};
